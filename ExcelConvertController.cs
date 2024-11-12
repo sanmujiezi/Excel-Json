@@ -19,6 +19,7 @@ namespace ExcelConvert
     {
         public class ExcelConvertController
         {
+            
             public string excelPath { get; private set; }
             public string outputPath { get; private set; }
             public ConvertType convertType { get; private set; }
@@ -44,7 +45,7 @@ namespace ExcelConvert
             }
 
             #region 旧的Excel转换Json方案
-
+            [Obsolete]
             public void ConvertToJson()
             {
                 if (excelPath == null || outputPath == null || excelPath == "" || outputPath == "")
@@ -90,7 +91,7 @@ namespace ExcelConvert
                     }
                 }
             }
-
+            [Obsolete]
             public object GetCellType(string cell, string columnName)
             {
                 if (excelPath == null || excelPath == "" || columnName == null || columnName == "")
@@ -114,7 +115,7 @@ namespace ExcelConvert
             }
 
             #endregion
-
+            
             public void Convert()
             {
                 IReadStrategy readStrategy = new ExcelReadStrategy();

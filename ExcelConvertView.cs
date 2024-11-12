@@ -140,7 +140,7 @@ namespace ExcelConvert
 
             private void ConvertButton()
             {
-                ExcelConvertController.Instance.ConvertToJson();
+                ExcelConvertController.Instance.Convert();
             }
 
 
@@ -149,7 +149,7 @@ namespace ExcelConvert
                 string temp_excelPath = EditorUtility.OpenFilePanel("Select a File", Application.dataPath + "", "xlsx");
                 if (File.Exists(temp_excelPath))
                 {
-                    Debug.Log(temp_excelPath + "_");
+                    Debug.Log($"<color=yellow>输入PATH：</color>{temp_excelPath}");
                     ExcelConvertController.Instance.SetExcelPath(temp_excelPath);
                 }
                 else
@@ -163,7 +163,7 @@ namespace ExcelConvert
                 string temp_outputPath = EditorUtility.OpenFolderPanel("Select a File", Application.dataPath + "", "");
                 if (Directory.Exists(temp_outputPath))
                 {
-                    Debug.Log(temp_outputPath + "_");
+                    Debug.Log($"<color=yellow>输出PATH：</color>{temp_outputPath}");
                     ExcelConvertController.Instance.SetOutputPath(temp_outputPath);
                 }
                 else
