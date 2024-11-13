@@ -1,20 +1,20 @@
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Reflection;
+using Excel;
+using ExcelConvert;
 using Plugins.ExcelConvertToJson.Define;
 using UnityEngine;
-using Object = System.Object;
 
 namespace Plugins.ExcelConvertToJson.Tools
 {
     public static class ExcelHandel
     {
-        public static readonly int tableTitle = 1;
-        public static readonly int tableType = 2;
-        public static readonly int tableKey = 3;
-        public static readonly int tableValue = 5;
+        public static readonly int tableTitle = 0;
+        public static readonly int tableType = 1;
+        public static readonly int tableKey = 2;
+        public static readonly int tableValue = 4;
 
         //判断文件中的表的数据结构类是否存在
         public static bool IsExistClass(string className)
@@ -26,78 +26,86 @@ namespace Plugins.ExcelConvertToJson.Tools
         //创建结构类
         public static void CreateModel(DataTable table, string className)
         {
-            using (FileStream fs = new FileStream(PathDefine.ModelPath + className + PostfixDefine.Model,
-                       FileMode.Create))
+            string path = PathDefine.ModelPath + className + PostfixDefine.Class;
+            string code = @"[System.Serializable]" +
+                          "\tpublic class " + className + " : BaseModel {";
+            DataRow titleRow = GetTitleRow(table);
+            DataRow typeRow = GetTypeRow(table);
+            for (int i = 0; i < table.Columns.Count; i++)
             {
-                StreamWriter writer = new StreamWriter(fs);
-                writer.WriteLine("[System.Serializable]");
-                writer.WriteLine("public class " + className + " : BaseModel {");
-                DataRow titleRow = GetTitleRow(table);
-                DataRow typeRow = GetTypeRow(table);
-                for (int i = 0; i < table.Columns.Count; i++)
-                {
-                    writer.WriteLine($"public {typeRow[i]} {titleRow[i]};");
-                }
+                // Debug.Log("类型"+typeRow[i] + "，字段名" + titleRow[i]);
+                code += $"\n\tpublic {ConvertType(typeRow[i].ToString())} {titleRow[i]};";
+            }
 
+            code += "\n}";
+            File.WriteAllText(path, code);
+
+            Debug.Log("写入了文件 " + className + PostfixDefine.Class);
+        }
+
+        public static void CreateContainer(string className)
+        {
+            using (StreamWriter writer = new StreamWriter(PathDefine.ModelPath + className + PostfixDefine.Container + PostfixDefine.Class))
+            {
+                writer.WriteLine("[System.Serializable]");
+                writer.WriteLine("public class " + className + PostfixDefine.Container + " : BaseContainer {");
                 writer.WriteLine("}");
             }
+
+            Debug.Log("写入了文件 " + className + PostfixDefine.Container + PostfixDefine.Class);
         }
 
-        //创建容器
-        public static Dictionary<string,T> CreateContainer<T>(DataTable table) where T : new()
+        public static BaseContainer ReadExcel(DataTable table)
         {
-            int keyColumus = GetKeyColumus(table);
-            if (keyColumus == -1)
-            {
-                keyColumus = 1;
-            }
-            
-            Dictionary<string,T> container = new Dictionary<string, T>();
-            ConstructorInfo constructorInfo = typeof(T).GetConstructor(new Type[0]);
-            FieldInfo[] infos = typeof(T).GetFields();
+            int keycolumus = GetKeyColumus(table);
+            string className = table.TableName;
+            string containerName = className + PostfixDefine.Container;
+            Type classType = Type.GetType(className);
+            Type containerType = Type.GetType(containerName);
+
+
+            ConstructorInfo classCon = classType.GetConstructor(new Type[0]);
+            FieldInfo[] classFields = classType.GetFields();
+
+            ConstructorInfo conCon = containerType.GetConstructor(new Type[0]);
+            FieldInfo conFields = containerType.GetField("table");
+            MethodInfo addMethod = conFields.FieldType.GetMethod("Add");;
+
+            var container = conCon.Invoke(new object[0]);
 
             for (int i = tableValue; i < table.Rows.Count; i++)
             {
-                DataRow curRow = table.Rows[i];
-                T item = (T)constructorInfo.Invoke(new object[0]);
+                DataRow row = table.Rows[i];
+                var item = classCon.Invoke(new object[0]);
                 for (int j = 0; j < table.Columns.Count; j++)
                 {
-                    var value = curRow[j];
-                    infos[j].SetValue(item, value);
+                    Type typeInfo = classFields[j].FieldType;
+                    object converValue = Convert.ChangeType(row[j], typeInfo);
+                    classFields[j].SetValue(item, converValue);
                 }
-                container.Add(curRow[keyColumus].ToString(), item);
+
+                addMethod.Invoke(conFields, new object[] { row[keycolumus].ToString(), (item as BaseModel) });
             }
 
-            return container;
-
+            return container as BaseContainer;
         }
-        
-        public static Dictionary<string,BaseModel> CreateContainer(DataTable table,Type type)
+
+
+        public static string[] GetExcelFileNames(string path)
         {
-            int keyColumus = GetKeyColumus(table);
-            if (keyColumus == -1)
+            string[] names;
+            using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
-                keyColumus = 1;
-            }
-            
-            Dictionary<string,BaseModel> container = new Dictionary<string, BaseModel>();
-            ConstructorInfo constructorInfo = type.GetConstructor(new Type[0]);
-            FieldInfo[] infos = type.GetFields();
-
-            for (int i = tableValue; i < table.Rows.Count; i++)
-            {
-                DataRow curRow = table.Rows[i];
-                var item = constructorInfo.Invoke(new object[0]);
-                for (int j = 0; j < table.Columns.Count; j++)
+                IExcelDataReader reader = ExcelReaderFactory.CreateOpenXmlReader(fs);
+                DataSet dataSet = reader.AsDataSet();
+                names = new string[dataSet.Tables.Count];
+                for (int i = 0; i < dataSet.Tables.Count; i++)
                 {
-                    var value = curRow[j];
-                    infos[j].SetValue(item, value);
+                    names[i] = dataSet.Tables[i].TableName;
                 }
-                container.Add(curRow[keyColumus].ToString(), (BaseModel)item);
             }
 
-            return container;
-
+            return names;
         }
 
         //获取标题行
@@ -123,14 +131,31 @@ namespace Plugins.ExcelConvertToJson.Tools
             DataRow keyRow = GetKeyRow(table);
             for (int i = 0; i < table.Columns.Count; i++)
             {
-                if (keyRow[i] == "key")
+                if (keyRow[i].ToString() == "key")
                 {
                     return i;
                 }
             }
-            
+
             Debug.LogError($"为{table.TableName}表中不存在 主键 key");
             return -1;
+        }
+
+        public static string ConvertType(string type)
+        {
+            switch (type)
+            {
+                case "string":
+                    return "string";
+                case "float":
+                    return "float";
+                case "int":
+                    return "int";
+                case "bool":
+                    return "bool";
+                default:
+                    return "string";
+            }
         }
     }
 }

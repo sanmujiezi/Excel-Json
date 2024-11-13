@@ -1,13 +1,16 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ExcelConvert.Controller
 {
-    public class BinaryConvertStategy<T> : IConverterStategy<T> where T : class
+    public class BinaryConvertStategy : IConverterStategy
     {
-        public void Convert(string outputPath, T t)
+     
+
+        public void Convert(string outputPath, Dictionary<string, BaseModel> container)
         {
-            Debug.Log($"将{typeof(T).Name}转换为而二进制到{outputPath}文件中");
+            throw new NotImplementedException();
         }
     }
 }

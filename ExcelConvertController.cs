@@ -23,6 +23,8 @@ namespace ExcelConvert
             public string excelPath { get; private set; }
             public string outputPath { get; private set; }
             public ConvertType convertType { get; private set; }
+            private IReadStrategy readStrategy;
+            private IConverterStategy converterStategy;
 
             private static ExcelConvertController instance;
 
@@ -116,20 +118,50 @@ namespace ExcelConvert
 
             #endregion
             
-            public void Convert()
+            
+            
+            public void CreateModel()
             {
-                IReadStrategy readStrategy = new ExcelReadStrategy();
-                ConvertReader reader = new ConvertReader(readStrategy);
-                
-                string modelName = "";
-                string containerModelName = "";
-                reader.ReadData(excelPath,out modelName,out containerModelName);
-                
-                
-                
-                
+               SelectStrategy();
+               if (converterStategy == null)
+               {
+                   return;
+               }
+               PlayerPrefs.SetString("excelPath",excelPath);
+               PlayerPrefs.SetString("outputPath",outputPath);
+               readStrategy.CreateModel(excelPath);
+               
+            }
+
+            public void ConvertData()
+            {
+                excelPath = PlayerPrefs.GetString("excelPath");
+                outputPath = PlayerPrefs.GetString("outputPath");
+                readStrategy.ReadExcel(excelPath);
             }
             
+            
+
+            private void SelectStrategy()
+            {
+                readStrategy = new ExcelReadStrategy();
+                
+                switch (convertType)
+                {
+                    case ConvertType.None:
+                        Debug.Log("没有选择传唤类型");
+                        return;
+                    case ConvertType.Binary :
+                        converterStategy = new BinaryConvertStategy();
+                        break;
+                    case ConvertType.Json:
+                        converterStategy = new JsonConvertStategy();
+                        break;
+                    case ConvertType.Xml:
+                        Debug.Log("暂时不支持");
+                        return;
+                }
+            }
 
             public void SetExcelPath(string path)
             {

@@ -1,9 +1,11 @@
+using System.Collections.Generic;
+
 namespace ExcelConvert.Controller
 {
     public interface IReadStrategy
     {
-        public void ReadData(string path,out string modelName, out string containerModelName);
-     
+        public void CreateModel(string path);
+        public Dictionary<string,BaseContainer> ReadExcel(string path);
     }
     
 }

@@ -14,7 +14,7 @@ namespace ExcelConvert
    
     namespace View
     {
-        public class ExcelConvertView : EditorWindow
+        public partial class ExcelConvertView : EditorWindow
         {
             private static float windowsWidth = 300f;
             private static float windowsHeight = 200f;
@@ -125,11 +125,17 @@ namespace ExcelConvert
                 GUILayout.EndHorizontal();
 
                 GUILayout.BeginHorizontal();
+                if (GUILayout.Button("CreateModel",GUILayout.Width(100)))
+                {
+                    CreateModel();
+                }
                 if (GUILayout.Button("Convert", GUILayout.Width(100)))
                 {
                     ConvertButton();
                     //Debug.Log("Convert");
                 }
+
+                
 
 
                 GUILayout.EndHorizontal();
@@ -138,9 +144,17 @@ namespace ExcelConvert
                 GUILayout.EndArea();
             }
 
+            private void CreateModel()
+            {
+                ExcelConvertController.Instance.CreateModel();
+                
+            }
+
             private void ConvertButton()
             {
-                ExcelConvertController.Instance.Convert();
+                ExcelConvertController.Instance.CreateModel();
+                EditorApplication.update += CheckCompilationStatus;
+                isRunning = true;
             }
 
 

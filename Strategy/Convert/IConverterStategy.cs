@@ -1,8 +1,10 @@
+using System.Collections.Generic;
+
 namespace ExcelConvert.Controller
 {
     
-    public interface IConverterStategy<T>
+    public interface IConverterStategy
     {
-        public void Convert(string outputPath,T t);
+        public void Convert(string outputPath,Dictionary<string,BaseModel> container);
     }
 }

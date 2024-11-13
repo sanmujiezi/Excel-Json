@@ -1,8 +1,10 @@
+using System.Collections.Generic;
+
 namespace ExcelConvert.Controller
 {
-    public class JsonConvertStategy<T> : IConverterStategy<T> where T: class
+    public class JsonConvertStategy: IConverterStategy
     {
-        public void Convert(string outputPath, T t)
+        public void Convert(string outputPath, Dictionary<string, BaseModel> container)
         {
             throw new System.NotImplementedException();
         }
