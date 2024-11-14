@@ -31,7 +31,7 @@ namespace ExcelConvert.Controller
                     if (!ExcelHandel.IsExistClass(name))
                     {
                         ExcelHandel.CreateModel(table,name);
-                        ExcelHandel.CreateContainer(name);
+                        //ExcelHandel.CreateContainer(name);
                     }
                     
                     AssetDatabase.Refresh();

@@ -18,7 +18,7 @@ namespace ExcelConvert
         {
             private static float windowsWidth = 300f;
             private static float windowsHeight = 200f;
-            private int convertType = 0;
+            private int _convertType = 0;
 
             [MenuItem("Tools/Excel Converter")]
             public static void ShowWindow()
@@ -26,6 +26,10 @@ namespace ExcelConvert
                 var windows = GetWindow<ExcelConvertView>();
                 CenterWindow(windows);
                 windows.minSize = new Vector2(windowsWidth + 30f, windowsHeight);
+                
+                //读取数据
+                ExcelConvertController.Instance.LoadSelectionData();
+                
             }
 
             private static void CenterWindow(ExcelConvertView window)
@@ -85,21 +89,21 @@ namespace ExcelConvert
                 GUILayout.Label("");
 
                 GUILayout.BeginHorizontal();
-
-                if (GUILayout.Toggle(convertType == 1,"Json",  GUILayout.Width(100)))
+                _convertType = (int)ExcelConvertController.Instance.convertType;
+                if (GUILayout.Toggle(_convertType == 1,"Json",  GUILayout.Width(100)))
                 {
-                    convertType = 1;
-                    ExcelConvertController.Instance.SetConvertType((ConvertType)convertType);
+                    _convertType = 1;
+                    ExcelConvertController.Instance.SetConvertType((ConvertType)_convertType);
                 }
-                if (GUILayout.Toggle(convertType == 2,"Binary",  GUILayout.Width(100)))
+                if (GUILayout.Toggle(_convertType == 2,"Binary",  GUILayout.Width(100)))
                 {
-                    convertType = 2;
-                    ExcelConvertController.Instance.SetConvertType((ConvertType)convertType);
+                    _convertType = 2;
+                    ExcelConvertController.Instance.SetConvertType((ConvertType)_convertType);
                 }
-                if (GUILayout.Toggle(convertType == 3,"Xml",  GUILayout.Width(100)))
+                if (GUILayout.Toggle(_convertType == 3,"Xml",  GUILayout.Width(100)))
                 {
-                    convertType = 3;
-                    ExcelConvertController.Instance.SetConvertType((ConvertType)convertType);
+                    _convertType = 3;
+                    ExcelConvertController.Instance.SetConvertType((ConvertType)_convertType);
                 }
                 
                 GUILayout.EndHorizontal();
@@ -110,16 +114,6 @@ namespace ExcelConvert
                 if (GUILayout.Button("...", GUILayout.Width(20)))
                 {
                     InputPath();
-                }
-
-                GUILayout.EndHorizontal();
-
-                GUILayout.BeginHorizontal();
-                GUILayout.Label("OutputPath: ", GUILayout.Width(80));
-                GUILayout.TextField(ExcelConvertController.Instance.outputPath, GUILayout.Width(200));
-                if (GUILayout.Button("...", GUILayout.Width(20)))
-                {
-                    OutputPath();
                 }
 
                 GUILayout.EndHorizontal();
@@ -171,20 +165,7 @@ namespace ExcelConvert
                     Debug.Log("File not found");
                 }
             }
-
-            private void OutputPath()
-            {
-                string temp_outputPath = EditorUtility.OpenFolderPanel("Select a File", Application.dataPath + "", "");
-                if (Directory.Exists(temp_outputPath))
-                {
-                    Debug.Log($"<color=yellow>输出PATH：</color>{temp_outputPath}");
-                    ExcelConvertController.Instance.SetOutputPath(temp_outputPath);
-                }
-                else
-                {
-                    Debug.Log("Folder not found");
-                }
-            }
+          
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Reflection;
@@ -28,7 +29,7 @@ namespace Plugins.ExcelConvertToJson.Tools
         {
             string path = PathDefine.ModelPath + className + PostfixDefine.Class;
             string code = @"[System.Serializable]" +
-                          "\tpublic class " + className + " : BaseModel {";
+                          "\npublic class " + className + " : BaseModel {";
             DataRow titleRow = GetTitleRow(table);
             DataRow typeRow = GetTypeRow(table);
             for (int i = 0; i < table.Columns.Count; i++)
@@ -42,14 +43,16 @@ namespace Plugins.ExcelConvertToJson.Tools
 
             Debug.Log("写入了文件 " + className + PostfixDefine.Class);
         }
-
+        
+        [Obsolete]
         public static void CreateContainer(string className)
         {
-            using (StreamWriter writer = new StreamWriter(PathDefine.ModelPath + className + PostfixDefine.Container + PostfixDefine.Class))
+            using (StreamWriter writer =
+                   new StreamWriter(PathDefine.ModelPath + className + PostfixDefine.Container + PostfixDefine.Class))
             {
                 writer.WriteLine("[System.Serializable]");
-                writer.WriteLine("public class " + className + PostfixDefine.Container + " : BaseContainer {");
-                writer.WriteLine("}");
+                writer.WriteLine("\n\tpublic class " + className + PostfixDefine.Container + " : BaseContainer {");
+                writer.WriteLine("\n}");
             }
 
             Debug.Log("写入了文件 " + className + PostfixDefine.Container + PostfixDefine.Class);
@@ -67,12 +70,15 @@ namespace Plugins.ExcelConvertToJson.Tools
             ConstructorInfo classCon = classType.GetConstructor(new Type[0]);
             FieldInfo[] classFields = classType.GetFields();
 
-            ConstructorInfo conCon = containerType.GetConstructor(new Type[0]);
-            FieldInfo conFields = containerType.GetField("table");
-            MethodInfo addMethod = conFields.FieldType.GetMethod("Add");;
+            // ConstructorInfo conCon = containerType.GetConstructor(new Type[0]);
+            // FieldInfo dicFields = containerType.BaseType.GetField("table", BindingFlags.Public | BindingFlags.Instance);
+            // MethodInfo addMethod = dicFields.FieldType.GetMethod("Add");
+            
+            //var container = conCon.Invoke(new object[0]);
+            //var dictionary = (Dictionary<string, BaseModel>)dicFields.GetValue(container as BaseContainer);
 
-            var container = conCon.Invoke(new object[0]);
-
+            BaseContainer container = new BaseContainer();
+            
             for (int i = tableValue; i < table.Rows.Count; i++)
             {
                 DataRow row = table.Rows[i];
@@ -84,10 +90,11 @@ namespace Plugins.ExcelConvertToJson.Tools
                     classFields[j].SetValue(item, converValue);
                 }
 
-                addMethod.Invoke(conFields, new object[] { row[keycolumus].ToString(), (item as BaseModel) });
+                //addMethod.Invoke(dictionary, new object[] { row[keycolumus].ToString(), (item as BaseModel) });
+                container.table.Add(row[keycolumus].ToString(), item as BaseModel);
             }
 
-            return container as BaseContainer;
+            return container;
         }
 
 

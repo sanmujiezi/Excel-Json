@@ -10,12 +10,14 @@ namespace ExcelConvert.View
         private bool isRunning = false;
         private void OnEnable()
         {
-           EditorApplication.update += CheckCompilationStatus;
+           AssemblyReloadEvents.afterAssemblyReload += CheckCompilationStatus;
+           AssemblyReloadEvents.afterAssemblyReload += ExcelConvertController.Instance.LoadSelectionData;
         }
 
         private void OnDisable()
         {
-            EditorApplication.update -= CheckCompilationStatus;
+            AssemblyReloadEvents.afterAssemblyReload -= CheckCompilationStatus;
+            AssemblyReloadEvents.afterAssemblyReload -= ExcelConvertController.Instance.LoadSelectionData;
         }
         
         private void CheckCompilationStatus()
@@ -44,7 +46,10 @@ namespace ExcelConvert.View
         {
             Debug.Log("Compilation finished, executing code...");
             ExcelConvertController.Instance.ConvertData();
+            AssetDatabase.Refresh();
+            
         }
+        
         
         
         

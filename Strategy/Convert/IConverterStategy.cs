@@ -5,6 +5,6 @@ namespace ExcelConvert.Controller
     
     public interface IConverterStategy
     {
-        public void Convert(string outputPath,Dictionary<string,BaseModel> container);
+        public void Convert(string fileName,BaseContainer container);
     }
 }
