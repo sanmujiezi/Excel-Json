@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using LitJson;
 using OfficeOpenXml;
+using UnityEditor;
 using UnityEngine;
 
 namespace ExcelConvert
@@ -41,7 +42,6 @@ namespace ExcelConvert
 
             public ExcelConvertController()
             {
-                
             }
 
             public void CreateModel()
@@ -52,9 +52,14 @@ namespace ExcelConvert
                     return;
                 }
 
-                PlayerPrefs.SetInt("Strategy", (int)convertType);
-                PlayerPrefs.SetString("excelPath", excelPath);
-                readStrategy.CreateModel(excelPath);
+                //var tempVlaue= excelPath.Replace("/", "\\");
+                string[] xlsxFiles = Directory.GetFiles(excelPath, "*.xlsx");
+                
+                
+                foreach (var value in xlsxFiles)
+                {
+                    readStrategy.CreateModel(value);
+                }
             }
 
             public void ConvertData()
@@ -70,12 +75,21 @@ namespace ExcelConvert
                 }
 
                 excelPath = PlayerPrefs.GetString("excelPath");
-                var allTabls = readStrategy.ReadExcel(excelPath);
-                Debug.Log($"读取成功,共{allTabls.Count}个表");
-                foreach (var VARIABLE in allTabls)
+
+                string[] xlsxFiles = Directory.GetFiles(excelPath, "*.xlsx");
+
+                foreach (var value in xlsxFiles)
                 {
-                    converterStategy.Convert(VARIABLE.Key, VARIABLE.Value);
+                    var allTabls = readStrategy.ReadExcel(value);
+                    Debug.Log($"读取成功,共{allTabls.Count}个表");
+                    foreach (var VARIABLE in allTabls)
+                    {
+                        Debug.Log($"表名为：{VARIABLE.Key}");
+                        converterStategy.Convert(VARIABLE.Key, VARIABLE.Value);
+                    }
                 }
+                AssetDatabase.Refresh();
+                
             }
 
 
@@ -95,7 +109,7 @@ namespace ExcelConvert
                         converterStategy = new JsonConvertStategy();
                         break;
                     case ConvertType.Xml:
-                        Debug.Log("暂时不支持");
+                        converterStategy = new XmlConvertStategy();
                         return;
                 }
             }
@@ -106,7 +120,6 @@ namespace ExcelConvert
             }
 
 
-
             public void SetConvertType(ConvertType convertType)
             {
                 this.convertType = convertType;
@@ -114,7 +127,7 @@ namespace ExcelConvert
 
             public void SaveSeletionData()
             {
-                if (string.IsNullOrEmpty(excelPath))
+                if (!string.IsNullOrEmpty(excelPath))
                 {
                     PlayerPrefs.SetString("excelPath", excelPath);
                 }
@@ -132,7 +145,7 @@ namespace ExcelConvert
                     excelPath = PlayerPrefs.GetString("excelPath");
                 }
 
-                if (PlayerPrefs.HasKey("Strategy") )
+                if (PlayerPrefs.HasKey("Strategy"))
                 {
                     int strategyInt = PlayerPrefs.GetInt("Strategy");
                     convertType = (ConvertType)strategyInt;
@@ -141,7 +154,7 @@ namespace ExcelConvert
 
             public void CreatePluginEnvironment()
             {
-              
+                //检查Scripts目录下是否存在
             }
         }
     }

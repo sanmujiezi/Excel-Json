@@ -46,7 +46,6 @@ namespace ExcelConvert.View
         {
             Debug.Log("Compilation finished, executing code...");
             ExcelConvertController.Instance.ConvertData();
-            AssetDatabase.Refresh();
             
         }
         

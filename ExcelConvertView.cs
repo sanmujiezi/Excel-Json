@@ -94,16 +94,19 @@ namespace ExcelConvert
                 {
                     _convertType = 1;
                     ExcelConvertController.Instance.SetConvertType((ConvertType)_convertType);
+                    ExcelConvertController.Instance.SaveSeletionData();
                 }
                 if (GUILayout.Toggle(_convertType == 2,"Binary",  GUILayout.Width(100)))
                 {
                     _convertType = 2;
                     ExcelConvertController.Instance.SetConvertType((ConvertType)_convertType);
+                    ExcelConvertController.Instance.SaveSeletionData();
                 }
                 if (GUILayout.Toggle(_convertType == 3,"Xml",  GUILayout.Width(100)))
                 {
                     _convertType = 3;
                     ExcelConvertController.Instance.SetConvertType((ConvertType)_convertType);
+                    ExcelConvertController.Instance.SaveSeletionData();
                 }
                 
                 GUILayout.EndHorizontal();
@@ -154,11 +157,12 @@ namespace ExcelConvert
 
             private void InputPath()
             {
-                string temp_excelPath = EditorUtility.OpenFilePanel("Select a File", Application.dataPath + "", "xlsx");
-                if (File.Exists(temp_excelPath))
+                string temp_excelPath = EditorUtility.OpenFolderPanel("Select a Folder", Application.dataPath,"");
+                if (!string.IsNullOrEmpty(temp_excelPath))
                 {
                     Debug.Log($"<color=yellow>输入PATH：</color>{temp_excelPath}");
                     ExcelConvertController.Instance.SetExcelPath(temp_excelPath);
+                    ExcelConvertController.Instance.SaveSeletionData();
                 }
                 else
                 {

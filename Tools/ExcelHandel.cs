@@ -61,21 +61,16 @@ namespace Plugins.ExcelConvertToJson.Tools
         public static BaseContainer ReadExcel(DataTable table)
         {
             int keycolumus = GetKeyColumus(table);
-            string className = table.TableName;
-            string containerName = className + PostfixDefine.Container;
+            string className = table.TableName + ",Assembly-CSharp";
             Type classType = Type.GetType(className);
-            Type containerType = Type.GetType(containerName);
-
-
+            if (classType == null)
+            {
+                Debug.LogError("未找到类 " + className);
+                return default(BaseContainer);
+            }
+            
             ConstructorInfo classCon = classType.GetConstructor(new Type[0]);
             FieldInfo[] classFields = classType.GetFields();
-
-            // ConstructorInfo conCon = containerType.GetConstructor(new Type[0]);
-            // FieldInfo dicFields = containerType.BaseType.GetField("table", BindingFlags.Public | BindingFlags.Instance);
-            // MethodInfo addMethod = dicFields.FieldType.GetMethod("Add");
-            
-            //var container = conCon.Invoke(new object[0]);
-            //var dictionary = (Dictionary<string, BaseModel>)dicFields.GetValue(container as BaseContainer);
 
             BaseContainer container = new BaseContainer();
             

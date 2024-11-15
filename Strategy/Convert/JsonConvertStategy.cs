@@ -22,14 +22,7 @@ namespace ExcelConvert.Controller
                 sw.Flush();
                 fs.Close();
             }
-            //
-            // FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write);
-            // StreamWriter sw = new StreamWriter(fs);
-            // string toJson = JsonMapper.ToJson(container);
-            // sw.Write(toJson);
-            // sw.Flush();
-            // fs.Flush();
-            // fs.Close();
+            
         }
     }
 }
