@@ -89,23 +89,23 @@ namespace ExcelConvert
                 GUILayout.Label("");
 
                 GUILayout.BeginHorizontal();
-                _convertType = (int)ExcelConvertController.Instance.convertType;
+                _convertType = (int)ExcelConvertController.Instance.DataFileType;
                 if (GUILayout.Toggle(_convertType == 1,"Json",  GUILayout.Width(100)))
                 {
                     _convertType = 1;
-                    ExcelConvertController.Instance.SetConvertType((ConvertType)_convertType);
+                    ExcelConvertController.Instance.SetConvertType((DataFileType)_convertType);
                     ExcelConvertController.Instance.SaveSeletionData();
                 }
                 if (GUILayout.Toggle(_convertType == 2,"Binary",  GUILayout.Width(100)))
                 {
                     _convertType = 2;
-                    ExcelConvertController.Instance.SetConvertType((ConvertType)_convertType);
+                    ExcelConvertController.Instance.SetConvertType((DataFileType)_convertType);
                     ExcelConvertController.Instance.SaveSeletionData();
                 }
                 if (GUILayout.Toggle(_convertType == 3,"Xml",  GUILayout.Width(100)))
                 {
                     _convertType = 3;
-                    ExcelConvertController.Instance.SetConvertType((ConvertType)_convertType);
+                    ExcelConvertController.Instance.SetConvertType((DataFileType)_convertType);
                     ExcelConvertController.Instance.SaveSeletionData();
                 }
                 

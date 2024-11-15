@@ -35,7 +35,7 @@ public class EpplusTest : MonoBehaviour
         // }
 
         int i = 1;
-        Debug.Log($"{(ConvertType)i}");
+        Debug.Log($"{(DataFileType)i}");
 
     }
 

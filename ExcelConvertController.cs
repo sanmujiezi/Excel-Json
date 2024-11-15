@@ -8,9 +8,8 @@ using UnityEngine;
 
 namespace ExcelConvert
 {
-    public enum ConvertType
+    public enum DataFileType
     {
-        None = 0,
         Json = 1,
         Binary = 2,
         Xml = 3
@@ -21,7 +20,7 @@ namespace ExcelConvert
         public class ExcelConvertController
         {
             public string excelPath { get; private set; }
-            public ConvertType convertType { get; private set; }
+            public DataFileType DataFileType { get; private set; }
             private IReadStrategy readStrategy;
             private IConverterStategy converterStategy;
 
@@ -47,7 +46,7 @@ namespace ExcelConvert
             public void CreateModel()
             {
                 SelectStrategy();
-                if (converterStategy == null || convertType == ConvertType.None)
+                if (converterStategy == null)
                 {
                     return;
                 }
@@ -65,7 +64,7 @@ namespace ExcelConvert
             public void ConvertData()
             {
                 int strategyInt = PlayerPrefs.GetInt("Strategy");
-                convertType = (ConvertType)strategyInt;
+                DataFileType = (DataFileType)strategyInt;
 
                 SelectStrategy();
 
@@ -80,7 +79,7 @@ namespace ExcelConvert
 
                 foreach (var value in xlsxFiles)
                 {
-                    var allTabls = readStrategy.ReadExcel(value);
+                    var allTabls = readStrategy.ReadData(value);
                     Debug.Log($"读取成功,共{allTabls.Count}个表");
                     foreach (var VARIABLE in allTabls)
                     {
@@ -97,18 +96,15 @@ namespace ExcelConvert
             {
                 readStrategy = new ExcelReadStrategy();
 
-                switch (convertType)
+                switch (DataFileType)
                 {
-                    case ConvertType.None:
-                        Debug.Log("没有选择传唤类型");
-                        return;
-                    case ConvertType.Binary:
+                    case DataFileType.Binary:
                         converterStategy = new BinaryConvertStategy();
                         break;
-                    case ConvertType.Json:
+                    case DataFileType.Json:
                         converterStategy = new JsonConvertStategy();
                         break;
-                    case ConvertType.Xml:
+                    case DataFileType.Xml:
                         converterStategy = new XmlConvertStategy();
                         return;
                 }
@@ -120,9 +116,9 @@ namespace ExcelConvert
             }
 
 
-            public void SetConvertType(ConvertType convertType)
+            public void SetConvertType(DataFileType dataFileType)
             {
-                this.convertType = convertType;
+                this.DataFileType = dataFileType;
             }
 
             public void SaveSeletionData()
@@ -132,9 +128,9 @@ namespace ExcelConvert
                     PlayerPrefs.SetString("excelPath", excelPath);
                 }
 
-                if (convertType != null || convertType != ConvertType.None)
+                if (DataFileType != null)
                 {
-                    PlayerPrefs.SetInt("Strategy", (int)convertType);
+                    PlayerPrefs.SetInt("Strategy", (int)DataFileType);
                 }
             }
 
@@ -148,7 +144,7 @@ namespace ExcelConvert
                 if (PlayerPrefs.HasKey("Strategy"))
                 {
                     int strategyInt = PlayerPrefs.GetInt("Strategy");
-                    convertType = (ConvertType)strategyInt;
+                    DataFileType = (DataFileType)strategyInt;
                 }
             }
 

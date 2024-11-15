@@ -42,7 +42,7 @@ namespace ExcelConvert.Controller
             }
         }
 
-        public Dictionary<string,BaseContainer> ReadExcel(string path)
+        public Dictionary<string,BaseContainer> ReadData(string path)
         {
             Dictionary<string,BaseContainer> fileTable = new Dictionary<string,BaseContainer>();
             
